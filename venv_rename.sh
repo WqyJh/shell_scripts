@@ -14,14 +14,24 @@ mv $src $dest
 
 cd $dest
 
+# Rename scripts' interrupter
 for f in $(ag -l "/$src/"); do
 	echo "Renaming $src occurs in file $f"
 	sed -i "s/\/$src\//\/$dest\//g" $f
 done
 
+# Rename environmental variables in activate scripts
 for f in $(find bin/ | grep -P "activate(.csh|.fish|)$"); do
     echo "Renaming $src occurs in file $f"
     line=$(grep -ne 'VIRTUAL_ENV=' $f | cut -d ':' -f 1)
     sed -i "${line}s/\/$src/\/$dest/g" $f
 done
+
+# Relink local directories
+if [ -d local ]; then 
+    ln -snf $(pwd)/bin local/bin
+    ln -snf $(pwd)/lib local/lib
+    ln -snf $(pwd)/include local/include
+fi
+
 
